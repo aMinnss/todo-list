@@ -8,7 +8,8 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [editTodos, setEditTodos] = useState(null); // тут будет хранится задача, которую редактируем 
+  const [editTodos, setEditTodos] = useState(null); // тут будет хранится задача, которую редактируем
+  const [filter, setFilter] = useState('ALL');
 
   function closeModal() {
     setModalOpen(false);
@@ -31,7 +32,7 @@ function App() {
   const deleteItem = (id) => {
     setTodos(todos.filter(item =>  item.id !== id));
   };
-    // filter - возвращает новый массив, оставяя только элементы подходящие под условие
+    // filter - возвращает новый массив, оставляя только элементы подходящие под условие
     // item - каждый элемент массива по очереди
     // item.id !== id -> оставь все задачи, id которых НЕ равен тому, который мы хотим удалить
 
@@ -44,9 +45,16 @@ function App() {
     setTodos( todos.map(item => item.id ===id ? { ...item, isCompleted: !item.isCompleted} : item));
   };
 
-  const filteredTodos = todos.filter(item => 
+  const filteredTodos = todos
+      .filter(item =>
     item.taskItem.toLowerCase().includes(search.toLowerCase())
-  );
+  )
+      .filter(todo => {
+        if (filter === 'ALL') return  true;
+        if (filter === 'DONE') return  todo.isCompleted;
+        if (filter === 'NOT-DONE') return  !todo.isCompleted;
+      })
+  ;
     // toLowerCase() — чтобы поиск был без учета регистра
     // includes() — проверяет, есть ли текст внутри задачи
 
@@ -56,7 +64,12 @@ function App() {
         <h1>TODO LIST</h1>
         <div className='top-bar'>
           <input type="text" placeholder='Search note...' value={search} onChange={(e) => setSearch(e.target.value)}/>
-          <button className='filter-btn'>ALL</button>
+          {/*<button className='filter-btn'>ALL</button>*/}
+          <select className='filter-btn' value={filter} onChange={(e) => setFilter(e.target.value)} >
+            <option value={'ALL'}>ALL</option>
+            <option value={'DONE'}>DONE</option>
+            <option value={'NOT-DONE'}>NOT-DONE</option>
+          </select>
         </div>
         <Tasks tasks={filteredTodos} editButton={editItem} deleteButton={deleteItem} toggleComplete={toggleComplete}/>
         <button className='add-btn' onClick={() => {setModalOpen(true)}}>+</button>
